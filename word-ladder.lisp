@@ -15,8 +15,6 @@
         dictionary))
   :test #'hs-equal)
 
-(defparameter *dictionary-graph* (populate (make-instance 'graph)))
-
 (defun valid-dictionary-wordp (word)
   (first (hs-memberp +dictionary+ word)))
 
@@ -30,8 +28,7 @@
 (defun strings-one-char-change (word)
   (let ((strings (make-instance 'hash-set))
         (downcased-word (string-downcase word)))
-    (loop
-       for char across downcased-word
+    (loop for char across downcased-word
        for char-idx below (length downcased-word)
        do (loop for alphabet-char across +alphabet+
              when (char-not-equal alphabet-char char)
@@ -56,16 +53,15 @@
     (dohashset (neighbour (word-neighbours word))
       (add-edge *dictionary-graph* (list (symbolicate word) (symbolicate neighbour)) 1))))
 
-(defun load-dictionary ()
-  (format t "Loading nodes...~%")
-  (load-nodes-into-graph)
-  (format t "Finished loading nodes.~%")
-  (format t "Loading edges...~%")
-  (load-edges-into-graph)
-  (format t "Finished loading edges.~%"))
-
 (defun word-ladder (word-a word-b)
-  (shortest-path *dictionary-graph* (symbolicate word-a) (symbolicate word-b)))
+  (if (/= (length word-a) (length word-b))
+      (error "Words are of different length.")
+      (let* ((graph (populate (make-instance 'graph)))
+             (word-set (hs-filter (lambda (x) (= (length word-a) (length x))) +dictionary+)))
+        (dohashset (word word-set)
+          (dohashset (neighbour (word-neighbours word))
+            (add-edge graph (list (symbolicate word) (symbolicate neighbour)) 1)))
+        (shortest-path graph (symbolicate word-a) (symbolicate word-b)))))
 
 (defun generate-word-ladder-graph (word-a word-b)
   (let* ((edges (word-ladder word-a word-b))
@@ -81,6 +77,3 @@
                                :if-exists :supersede
                                :if-does-not-exist :create)
                (to-html (generate-word-ladder-graph word-a word-b) :stream stream)))
-
-(when (= 0 (length (graph:nodes *dictionary-graph*)))
-    (load-dictionary))
