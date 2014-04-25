@@ -1,4 +1,13 @@
-;;; http://www.problemotd.com/problem/word-ladder/
+#|
+
+Problem from http://www.problemotd.com/problem/word-ladder/
+
+Load all words of same length into a graph, and add an edge between
+every word and it's 1-neighbour.
+
+The word ladder is the shortest path between two words.
+
+|#
 
 (in-package :word-ladder)
 
@@ -7,7 +16,7 @@
   :test #'equalp)
 
 (define-constant +dictionary+
-    (with-open-file (stream #P "wordsEn.txt") 
+    (with-open-file (stream #P"wordsEn.txt") 
       (let ((dictionary (make-instance 'hash-set)))
         (loop for line = (read-line stream nil)
            until (eq line nil)
@@ -36,22 +45,6 @@
                   (setf (aref insertee-string char-idx) alphabet-char)
                   (hs-insert strings insertee-string))))
     strings))
-
-(defun neighbours-from-set (hash-set)
-  (let ((result (make-instance 'hash-set)))
-    (dohashset (elt hash-set)
-      (dohashset (i (word-neighbours elt))
-        (hs-insert result i)))
-    result))
-
-(defun load-nodes-into-graph ()
-  (dohashset (word +dictionary+)
-    (add-node *dictionary-graph* (symbolicate word))))
-
-(defun load-edges-into-graph ()
-  (dohashset (word +dictionary+)
-    (dohashset (neighbour (word-neighbours word))
-      (add-edge *dictionary-graph* (list (symbolicate word) (symbolicate neighbour)) 1))))
 
 (defun word-ladder (word-a word-b)
   (if (/= (length word-a) (length word-b))

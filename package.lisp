@@ -6,5 +6,7 @@
         #:graph-json
         #:hash-set
         #:alexandria)
-  (:export #:generate-word-ladder
-           #:valid-dictionary-wordp))
+  (:export #:word-ladder
+           #:valid-dictionary-wordp
+           #:generate-word-ladder-graph
+           #:generate-html-visualisation))
