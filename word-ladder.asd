@@ -10,7 +10,9 @@
   :licence "Unknown"
   :depends-on (#:hash-set
                #:alexandria
-               #:optima)
+               #:optima
+               #:graph
+               #:graph-json)
   :components ((:file "package")
                (:file "word-ladder")))
                

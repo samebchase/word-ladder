@@ -1,6 +1,10 @@
 (in-package :cl-user)
 
 (defpackage #:word-ladder
-  (:use #:cl #:hash-set)
+  (:use #:cl
+        #:graph
+        #:graph-json
+        #:hash-set
+        #:alexandria)
   (:export #:generate-word-ladder
            #:valid-dictionary-wordp))
