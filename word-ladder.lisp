@@ -39,8 +39,7 @@ The word ladder is the shortest path between two words.
         (downcased-word (string-downcase word)))
     (loop for char across downcased-word
        for char-idx below (length downcased-word)
-       do (loop for alphabet-char across +alphabet+
-             when (char-not-equal alphabet-char char)
+       do (loop for alphabet-char across (remove char +alphabet+)
              do (let ((insertee-string (copy-seq downcased-word)))
                   (setf (aref insertee-string char-idx) alphabet-char)
                   (hs-insert strings insertee-string))))
@@ -56,6 +55,17 @@ The word ladder is the shortest path between two words.
             (add-edge graph (list (symbolicate word) (symbolicate neighbour)) 1)))
         (shortest-path graph (symbolicate word-a) (symbolicate word-b)))))
 
+(defun generate-word-neighbours-graph (word)
+  (let* ((neighbours (hs-to-list (word-neighbours word)))
+         (nodes (append (loop for neighbour in neighbours
+                             collect (symbolicate neighbour))
+                        (list (symbolicate word))))
+         (edges-w-values (loop for neighbour in neighbours
+                            collect (cons (list (symbolicate word) (symbolicate neighbour)) 2))))
+    (populate (make-instance 'graph)
+              :nodes nodes
+              :edges-w-values edges-w-values)))
+
 (defun generate-word-ladder-graph (word-a word-b)
   (let* ((edges (word-ladder word-a word-b))
          (edges-w-values (loop for edge in edges
@@ -65,8 +75,14 @@ The word ladder is the shortest path between two words.
               :nodes nodes
               :edges-w-values edges-w-values)))
 
-(defun generate-html-visualisation (word-a word-b pathspec)
+(defun visualise-graph (graph pathspec)
   (with-output-to-file (stream pathspec
                                :if-exists :supersede
                                :if-does-not-exist :create)
-               (to-html (generate-word-ladder-graph word-a word-b) :stream stream)))
+    (to-html graph :stream stream)))
+
+(defun visualise-word-ladder (word-a word-b pathspec)
+  (visualise-graph (generate-word-ladder-graph word-a word-b) pathspec))
+
+(defun visualise-word-neighbours (word pathspec)
+  (visualise-graph (generate-word-neighbours-graph word) pathspec))

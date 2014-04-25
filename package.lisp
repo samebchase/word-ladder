@@ -8,5 +8,7 @@
         #:alexandria)
   (:export #:word-ladder
            #:valid-dictionary-wordp
+           #:visualise-word-ladder
+           #:visualise-word-neighbours
            #:generate-word-ladder-graph
-           #:generate-html-visualisation))
+           #:generate-word-neighbours-graph))
