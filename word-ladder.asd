@@ -1,7 +1,7 @@
 (defpackage :word-ladder-system
   (:use :cl :asdf))
 
-(in-package :hash-set-system)
+(in-package :word-ladder-system)
 
 (defsystem #:word-ladder
   :serial t
