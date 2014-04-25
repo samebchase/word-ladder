@@ -7,7 +7,7 @@
   :test #'equalp)
 
 (alexandria:define-constant +dictionary+
-    (with-open-file (stream #P "/home/samuel/code/exercises/problemotd/word-ladder/store/wordsEn.txt") 
+    (with-open-file (stream #P "wordsEn.txt") 
       (let ((dictionary (make-instance 'hash-set)))
         (loop for line = (read-line stream nil)
            until (eq line nil)
