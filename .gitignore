@@ -1,2 +1,6 @@
 *.fasl
 *.html
+ocaml/_build/*
+*.byte
+*.native
+*~
