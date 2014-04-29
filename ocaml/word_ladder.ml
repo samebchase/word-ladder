@@ -27,17 +27,12 @@ let word_neighbours word =
   BatString.iteri
     (fun word_idx word_char ->
       BatString.iter
-
         (fun alphabet_char ->
           let copied_string = (String.copy word) in
           String.set copied_string word_idx alphabet_char;
-
           if is_valid_dictionary_word copied_string
-          then Hash_set.add neighbours copied_string
-
-        )
-        (drop_char_from_string word_char alphabet)
-    )
+          then Hash_set.add neighbours copied_string)
+        (drop_char_from_string word_char alphabet))
     word;
   neighbours
 ;;
