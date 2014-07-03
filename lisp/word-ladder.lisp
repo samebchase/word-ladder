@@ -17,21 +17,21 @@ The word ladder is the shortest path between two words.
 
 (define-constant +dictionary+
     (with-open-file (stream #P"wordsEn.txt") 
-      (let ((dictionary (make-instance 'hash-set)))
+      (let ((dictionary (make-hash-set)))
         (loop for line = (read-line stream nil)
            until (eq line nil)
-           do (hs-insert dictionary (string-right-trim '(#\Return) line)))
+           do (hs-ninsert dictionary (string-right-trim '(#\Return) line)))
         dictionary))
   :test #'hs-equal)
 
 (defun valid-dictionary-wordp (word)
-  (first (hs-memberp +dictionary+ word)))
+  (hs-memberp +dictionary+ word))
 
 (defun word-neighbours (word)
   (let ((strings (strings-one-char-change word)))
     (dohashset (string strings)
       (unless (valid-dictionary-wordp string)
-        (hs-delete strings string)))
+        (hs-nremove strings string)))
     strings))
 
 (defun strings-one-char-change (word)
@@ -42,18 +42,24 @@ The word ladder is the shortest path between two words.
        do (loop for alphabet-char across (remove char +alphabet+)
              do (let ((insertee-string (copy-seq downcased-word)))
                   (setf (aref insertee-string char-idx) alphabet-char)
-                  (hs-insert strings insertee-string))))
+                  (hs-ninsert strings insertee-string))))
     strings))
 
 (defun word-ladder (word-a word-b)
   (if (/= (length word-a) (length word-b))
       (error "Words are of different length.")
       (let* ((graph (populate (make-instance 'graph)))
-             (word-set (hs-filter (lambda (x) (= (length word-a) (length x))) +dictionary+)))
+             (word-set (hs-filter (lambda (x)
+                                    (= (length word-a)
+                                       (length x)))
+                                  +dictionary+)))
         (dohashset (word word-set)
           (dohashset (neighbour (word-neighbours word))
-            (add-edge graph (list (symbolicate word) (symbolicate neighbour)) 1)))
-        (shortest-path graph (symbolicate word-a) (symbolicate word-b)))))
+            (add-edge graph (list (symbolicate word)
+                                  (symbolicate neighbour)) 1)))
+        (shortest-path graph
+                       (symbolicate word-a)
+                       (symbolicate word-b)))))
 
 (defun generate-word-neighbours-graph (word)
   (let* ((neighbours (hs-to-list (word-neighbours word)))
@@ -61,7 +67,8 @@ The word ladder is the shortest path between two words.
                              collect (symbolicate neighbour))
                         (list (symbolicate word))))
          (edges-w-values (loop for neighbour in neighbours
-                            collect (cons (list (symbolicate word) (symbolicate neighbour)) 2))))
+                            collect (cons (list (symbolicate word)
+                                                (symbolicate neighbour)) 2))))
     (populate (make-instance 'graph)
               :nodes nodes
               :edges-w-values edges-w-values)))
